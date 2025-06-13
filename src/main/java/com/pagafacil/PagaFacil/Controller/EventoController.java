@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/cliente")
-public class ClienteController {
+public class EventoController {
 
     // Injeção de dependência do ClienteRepository
     @Autowired
