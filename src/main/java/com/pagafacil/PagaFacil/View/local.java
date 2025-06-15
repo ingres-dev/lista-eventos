@@ -2,7 +2,7 @@ package com.pagafacil.PagaFacil.View;
 
 public class local {
     // src/main/java/com/exemplo/mvc/view/UsuarioView.java
-package com.exemplo.mvc.view;
+package com.pagafacil.PagaFacil.View.local;
 
 import javax.swing.*;
 import java.awt.*;

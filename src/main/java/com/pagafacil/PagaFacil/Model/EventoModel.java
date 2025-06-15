@@ -1,70 +1,76 @@
-
 package com.pagafacil.PagaFacil.Model;
 
-import com.example.demo.model.Produto;
+import com.pagafacil.PagaFacil.Dominio.Evento;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class EventoModel {
 
-    private final List<Evento> produtos = new ArrayList<>();
-    private final AtomicLong counter = new AtomicLong(); // Para gerar IDs simulados
+    private final List<Evento> eventos = new ArrayList<>();
+    private int nextId = 1;
 
     public EventoModel() {
-        // Adiciona alguns produtos de exemplo ao iniciar
-        Eventos.add(new Evento(counter.incrementAndGet(), "Notebook Dell", "Core i7, 16GB RAM", new BigDecimal("5500.00")));
-        Eventos.add(new Evento(counter.incrementAndGet(), "Mouse Gamer", "RGB, 10000 DPI", new BigDecimal("150.00")));
-        Eventos.add(new Evento(counter.incrementAndGet(), "Teclado Mecânico", "Switch Brown", new BigDecimal("300.00")));
+        // Evento de exemplo para iniciar a lista
+        eventos.add(new Evento(
+                nextId++,
+                UUID.randomUUID(),
+                "Feira de Tecnologia",
+                LocalDate.of(2025, 7, 1),
+                LocalDate.of(2025, 7, 3),
+                100L,
+                "ativo",
+                new BigDecimal("50.00"),
+                300,
+                "Evento sobre inovações tecnológicas",
+                "https://exemplo.com/imagem.jpg",
+                LocalDate.now(),
+                LocalDate.now()
+        ));
     }
 
     public List<Evento> findAll() {
-        return new ArrayList<>(eventos); // Retorna uma cópia para evitar modificações externas
+        return new ArrayList<>(eventos); // Evita alterações externas
     }
 
-    public Optional<Evento> findById(Long id) {
+    public Optional<Evento> findById(int id) {
         return eventos.stream()
-                .filter(p -> p.getId().equals(id))
+                .filter(e -> e.getId() == id)
                 .findFirst();
     }
 
     public Evento save(Evento evento) {
-        if (evento.getId() == null) {
-            evento.setId(counter.incrementAndGet()); // Gera um novo ID se não houver
+        if (evento.getId() == 0) {
+            evento.setId(nextId++);
+            evento.setUuid(UUID.randomUUID());
         } else {
-            // Se o ID já existe, remove o antigo antes de adicionar o novo (simula atualização)
-            eventos.removeIf(p -> p.getId().equals(evento.getId()));
+            deleteById(evento.getId());
         }
         eventos.add(evento);
         return evento;
     }
 
-    public Evento update(Long id, Evento eventoAtualizado) {
-        return findById(id).map(eventoExistente -> {
-            eventoExistente.setId(eventoAtualizado.getNome());
-            eventoExistente.setUuid(eventoAtualizado.getNome());
-            eventoExistente.setNome(eventoAtualizado.getNome());
-            eventoExistente.setDescricao(eventoAtualizado.getDescricao());
-            eventoExistente.setData_inicio(eventoAtualizado.getNome());
-            eventoExistente.setData_fim(eventoAtualizado.getNome());
-            eventoExistente.setLocal_id(eventoAtualizado.getNome());
-            eventoExistente.setStatus(eventoAtualizado.getNome());
-            eventoExistente.setPreco_entrada(eventoAtualizado.getNome());
-            eventoExistente.setImagem_url(eventoAtualizado.getPreco());
-            eventoExistente.setData_cadastro(eventoAtualizado.getNome());
-            eventoExistente.setData_atualizacao(eventoAtualizado.getNome());
-
-
-            return eventoExistente;
-        }).orElse(null); // Retorna null se não encontrar
+    public Evento update(int id, Evento atualizado) {
+        return findById(id).map(evento -> {
+            evento.setNome(atualizado.getNome());
+            evento.setDescricao(atualizado.getDescricao());
+            evento.setDataInicio(atualizado.getDataInicio());
+            evento.setDataFim(atualizado.getDataFim());
+            evento.setLocalId(atualizado.getLocalId());
+            evento.setStatus(atualizado.getStatus());
+            evento.setPrecoEntrada(atualizado.getPrecoEntrada());
+            evento.setCapacidade(atualizado.getCapacidade());
+            evento.setImagemUrl(atualizado.getImagemUrl());
+            evento.setDataCadastro(atualizado.getDataCadastro());
+            evento.setDataAtualizacao(LocalDate.now()); // Atualiza data de modificação
+            return evento;
+        }).orElse(null);
     }
 
-    public boolean deleteById(Long id) {
-        return eventos.removeIf(evento -> evento.getId().equals(id));
+    public boolean deleteById(int id) {
+        return eventos.removeIf(evento -> evento.getId() == id);
     }
 }

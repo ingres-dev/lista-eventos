@@ -1,9 +1,7 @@
+package com.pagafacil.PagaFacil.Controller;
 
-package com.pagafacil.PagaFacil.Model;
-
-import com.example.demo.model.Produto;
-import com.pagafacil.PagaFacil.View.local;
-import jdk.vm.ci.meta.Local;
+import com.pagafacil.PagaFacil.Dominio.Local;
+import com.pagafacil.PagaFacil.Model.LocalModel;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,20 +11,20 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
-public class LocalModel {
+public class LocalController {
 
     private final List<Local> locais = new ArrayList<>();
     private final AtomicLong counter = new AtomicLong(); // Para gerar IDs simulados
 
-    public LocalModel() {
-        // Adiciona alguns produtos de exemplo ao iniciar
-        locais.add(new Local(counter.incrementAndGet(), "Notebook Dell", "Core i7, 16GB RAM", new BigDecimal("5500.00")));
-        locais.add(new Local(counter.incrementAndGet(), "Mouse Gamer", "RGB, 10000 DPI", new BigDecimal("150.00")));
-        locais.add(new Local(counter.incrementAndGet(), "Teclado Mecânico", "Switch Brown", new BigDecimal("300.00")));
+    public LocalController() {
+        // Exemplo fictício de locais, substitua conforme seu modelo real
+        locais.add(new Local(counter.incrementAndGet(), "Local A", "Auditório grande", new BigDecimal("1200.00"), "12345-678", 100, "url1.jpg", "2024-01-01"));
+        locais.add(new Local(counter.incrementAndGet(), "Local B", "Sala de reunião", new BigDecimal("500.00"), "23456-789", 20, "url2.jpg", "2024-02-01"));
+        locais.add(new Local(counter.incrementAndGet(), "Local C", "Espaço aberto", new BigDecimal("800.00"), "34567-890", 200, "url3.jpg", "2024-03-01"));
     }
 
     public List<Local> findAll() {
-        return new ArrayList<>(locais); // Retorna uma cópia para evitar modificações externas
+        return new ArrayList<>(locais);
     }
 
     public Optional<Local> findById(Long id) {
@@ -37,18 +35,16 @@ public class LocalModel {
 
     public Local save(Local local) {
         if (local.getId() == null) {
-            local.setId(counter.incrementAndGet()); // Gera um novo ID se não houver
+            local.setId(counter.incrementAndGet());
         } else {
-            // Se o ID já existe, remove o antigo antes de adicionar o novo (simula atualização)
             locais.removeIf(p -> p.getId().equals(local.getId()));
         }
         locais.add(local);
         return local;
     }
 
-    public local update(Long id, Local localAtualizado) {
+    public Local update(Long id, Local localAtualizado) {
         return findById(id).map(localExistente -> {
-            localExistente.SetId(localExistente.getId());
             localExistente.setNome(localAtualizado.getNome());
             localExistente.setDescricao(localAtualizado.getDescricao());
             localExistente.setPreco(localAtualizado.getPreco());
@@ -57,7 +53,7 @@ public class LocalModel {
             localExistente.setImagemUrl(localAtualizado.getImagemUrl());
             localExistente.setDataCadastro(localAtualizado.getDataCadastro());
             return localExistente;
-        }).orElse(null); // Retorna null se não encontrar
+        }).orElse(null);
     }
 
     public boolean deleteById(Long id) {

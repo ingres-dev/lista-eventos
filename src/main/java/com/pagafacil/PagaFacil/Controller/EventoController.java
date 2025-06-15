@@ -1,74 +1,58 @@
 package com.pagafacil.PagaFacil.Controller;
 
-import com.pagafacil.PagaFacil.Dominio.Cliente.Cliente;
-import com.pagafacil.PagaFacil.Dominio.Cliente.ClienteRepository;
-import com.pagafacil.PagaFacil.Dominio.Cliente.ClienteRequestDTO;
-import com.pagafacil.PagaFacil.Dominio.Cliente.ClienteResposeDTO;
+import com.pagafacil.PagaFacil.Dominio.Evento;
+import com.pagafacil.PagaFacil.Model.EventoModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/eventos")
 @CrossOrigin("*")
-@RequestMapping("/cliente")
 public class EventoController {
 
-    // Injeção de dependência do ClienteRepository
     @Autowired
-    private ClienteRepository repository;
+    private EventoModel eventoModel;
 
-    //CRUD
-
-    @PostMapping("/cadastrar")
-    public ResponseEntity<ClienteResposeDTO> cadastrarCliente(@RequestBody ClienteRequestDTO data) {
-        Cliente cliente = new Cliente(data);
-        repository.save(cliente);
-        return ResponseEntity.ok(new ClienteResposeDTO(cliente));
+    @GetMapping
+    public ResponseEntity<List<Evento>> listarEventos() {
+        return ResponseEntity.ok(eventoModel.findAll());
     }
 
-    @GetMapping("/listar")
-    public ResponseEntity<List<ClienteResposeDTO>> listarClientes() {
-        List<ClienteResposeDTO> clientes = repository.findAll().stream().map(ClienteResposeDTO::new).toList();
-        return ResponseEntity.ok(clientes);
+    @GetMapping("/{id}")
+    public ResponseEntity<Evento> buscarPorId(@PathVariable int id) {
+        Evento evento = eventoModel.findById(id)
+                .orElse(null);
+
+        if (evento == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(evento);
     }
 
-    @GetMapping("/buscar/{id}")
-    public ResponseEntity<ClienteResposeDTO> buscarClientePorId(@PathVariable Long id) {
-        Cliente cliente = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
-        return ResponseEntity.ok(new ClienteResposeDTO(cliente));
+    @PostMapping
+    public ResponseEntity<Evento> criarEvento(@RequestBody Evento evento) {
+        Evento criado = eventoModel.save(evento);
+        return ResponseEntity.ok(criado);
     }
 
-    @PutMapping("/atualizar/{id}")
-    public ResponseEntity<ClienteResposeDTO> atualizarCliente(@PathVariable Long id, @RequestBody ClienteRequestDTO data) {
-        Cliente clienteExistente = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
-
-        clienteExistente.setCnpj(data.cnpj());
-        clienteExistente.setNomeSocial(data.nomeSocial());
-        clienteExistente.setEmail(data.email());
-        clienteExistente.setSenha(data.senha());
-        clienteExistente.setTelefone(data.telefone());
-        clienteExistente.setEndereco(data.endereco());
-
-        repository.save(clienteExistente);
-
-        return ResponseEntity.ok(new ClienteResposeDTO(clienteExistente));
+    @PutMapping("/{id}")
+    public ResponseEntity<Evento> atualizarEvento(@PathVariable int id, @RequestBody Evento evento) {
+        Evento atualizado = eventoModel.update(id, evento);
+        if (atualizado == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(atualizado);
     }
 
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deletarCliente(@PathVariable Long id) {
-        Cliente cliente = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
-
-        repository.delete(cliente);
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarEvento(@PathVariable int id) {
+        boolean removido = eventoModel.deleteById(id);
+        if (!removido) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.noContent().build();
     }
-
-    // Metodos Adicinais faltando
 }
